@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>彈跳 lao chan kao 圓圈</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #222; }
+    #canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let x = canvas.width / 2;
+    let y = canvas.height / 2;
+    const radius = 50;
+    let vx = 3;
+    let vy = 2;
+    let color = randomColor();
+
+    function randomColor() {
+      return `hsl(${Math.random() * 360}, 80%, 60%)`;
+    }
+
+    function drawCircle() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // 多行文字：lao、chan、kao，各自一行
+      const multiLineText = "lao\nchan\nkao";
+      drawMultilineText(multiLineText, x, y, '24px', 'sans-serif', '#fff', 1.25);
+    }
+
+    function drawMultilineText(text, cx, cy, fontSize, fontFamily, color, lineHeight = 1.2) {
+      const lines = text.split('\n');
+      ctx.font = `bold ${fontSize} ${fontFamily}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = color;
+
+      const pxFontSize = parseInt(fontSize, 10);
+      // 用於排列多行Y位置
+      for (let i = 0; i < lines.length; i++) {
+        let yOffset = (i - (lines.length - 1) / 2) * pxFontSize * lineHeight;
+        ctx.fillText(lines[i], cx, cy + yOffset);
+      }
+    }
+
+    function update() {
+      x += vx;
+      y += vy;
+
+      let bounced = false;
+
+      if (x - radius <= 0) { x = radius; vx = -vx; bounced = true; }
+      if (x + radius >= canvas.width) { x = canvas.width - radius; vx = -vx; bounced = true; }
+      if (y - radius <= 0) { y = radius; vy = -vy; bounced = true; }
+      if (y + radius >= canvas.height) { y = canvas.height - radius; vy = -vy; bounced = true; }
+
+      if (bounced) color = randomColor();
+    }
+
+    function loop() {
+      update();
+      drawCircle();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
